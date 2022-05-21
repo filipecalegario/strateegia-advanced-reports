@@ -137,7 +137,7 @@ function CheckpointReport({ checkpointAndComments }) {
           </Box>
         ))
       ) : (
-        <p>sem pontos de convergência</p>
+        <p>sem pontos de conversação</p>
       )}
     </Box>
   );
