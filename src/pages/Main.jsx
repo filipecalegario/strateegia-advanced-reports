@@ -22,13 +22,7 @@ export default function Main() {
   const [isLoading, setIsLoading] = useState(false);
   const [convergencePoints, setConvergencePoints] = useState([]);
   const [accessToken, setAccessToken] = useState('');
-  const [isCreate, setIsCreate] = useState(false);
-  const [textForCreate, setTextForCreate] = useState(initialTextForCreate);
-
-  const handleInputChange = e => {
-    let inputValue = e.target.value;
-    setTextForCreate(inputValue);
-  };
+  const [checkpointAndComments, setCheckpointAndComments] = useState(null);
 
   const handleSelectChange = e => {
     setSelectedProject(e.target.value);
@@ -38,48 +32,67 @@ export default function Main() {
     setSelectedMap(e.target.value);
   };
 
-  function listOrCreate(e) {
-    if (e.target.checked) {
-      setIsCreate(true);
-    } else {
-      setIsCreate(false);
-    }
-  }
-
   useEffect(() => {
     setConvergencePoints([]);
   }, [selectedProject]);
 
   useEffect(() => {
-    setConvergencePoints([]);
-    async function fetchConvergencePoints() {
+    async function fetchData() {
       try {
         setIsLoading(true);
-        const response = await api.getMapById(accessToken, selectedMap);
-        // console.log(response);
-        const convergencePointsFromApi = response.points.filter(
-          content => content.point_type === 'CONVERGENCE'
+        const mapContents = await api.getMapById(accessToken, selectedMap);
+
+        const checkpoints = mapContents.points.filter(
+          point => point.point_type === 'CONVERSATION'
         );
-        // console.log(convergencePointsFromApi);
-        const allApiCalls = [];
-        convergencePointsFromApi.forEach(element => {
-          allApiCalls.push(
-            api.getConvergencePointById(accessToken, element.id)
+
+        const requestsPopulatedCheckpoints = [];
+        const requestsCheckpointsComments = [];
+
+        checkpoints.forEach(checkpoint => {
+          requestsPopulatedCheckpoints.push(
+            api.getCheckpointById(accessToken, checkpoint.id)
+          );
+          requestsCheckpointsComments.push(
+            api.getAllCheckpointCommentsByCheckpointId(
+              accessToken,
+              checkpoint.id
+            )
           );
         });
-        Promise.all(allApiCalls).then(values => {
-          // console.log("values");
-          // console.log(values);
-          setConvergencePoints(convPoints => [...values]);
-          console.log('convPoints');
-          console.log(convergencePoints);
-          setIsLoading(false);
+
+        const responsesPopulatedCheckpoints = await Promise.all(
+          requestsPopulatedCheckpoints
+        );
+        const responsesCheckpointsComments = await Promise.all(
+          requestsCheckpointsComments
+        );
+
+        const _checkpointAndComments = [];
+
+        responsesPopulatedCheckpoints.forEach(checkpoint => {
+          _checkpointAndComments.push({
+            checkpoint,
+            comments: [],
+          });
         });
+
+        responsesCheckpointsComments.forEach(element => {
+          element.content.forEach(comment => {
+            const found = _checkpointAndComments.find(item => {
+              return item.checkpoint.id === comment.checkpoint_id;
+            });
+            found.comments.push(comment);
+          });
+        });
+        console.log(_checkpointAndComments);
+        setCheckpointAndComments([..._checkpointAndComments]);
       } catch (error) {
         console.log(error);
       }
+      setIsLoading(false);
     }
-    fetchConvergencePoints();
+    fetchData();
   }, [selectedMap]);
 
   useEffect(() => {
@@ -93,24 +106,38 @@ export default function Main() {
         projectId={selectedProject}
         handleSelectChange={handleMapSelectChange}
       />
-      <Box padding={10}>
-        <span>listar </span>
-        <Switch size="lg" onChange={listOrCreate} />
-        <span> criar</span>
-      </Box>
-      {isCreate ? (
-        <Box>
-          <Text mb="8px"></Text>
-          <Textarea
-            value={textForCreate}
-            onChange={handleInputChange}
-            placeholder="adicione um texto"
-            size="md"
-            rows={10}
-          />
-        </Box>
+      {/* <ConvergencePointList convergencePoints={convergencePoints} /> */}
+      <CheckpointReport checkpointAndComments={checkpointAndComments} />
+    </Box>
+  );
+}
+
+function CheckpointReport({ checkpointAndComments }) {
+  return (
+    <Box>
+      {checkpointAndComments ? (
+        checkpointAndComments.map(checkpointAndComment => (
+          <Box margin={10}>
+            <strong>{checkpointAndComment.checkpoint.description}</strong>
+            <p>local: {checkpointAndComment.checkpoint.meeting_place}</p>
+            <p>
+              data:{' '}
+              {new Date(
+                checkpointAndComment.checkpoint.opening_date
+              ).toLocaleString('pt-BR')}
+            </p>
+            <UnorderedList margin={5}>
+              {checkpointAndComment.comments.map(comment => (
+                <ListItem key={comment.id}>
+                  <Text>{comment.text}</Text>
+                  <Text>{comment.author.name}</Text>
+                </ListItem>
+              ))}
+            </UnorderedList>
+          </Box>
+        ))
       ) : (
-        <ConvergencePointList convergencePoints={convergencePoints} />
+        <p>sem pontos de convergência</p>
       )}
     </Box>
   );
