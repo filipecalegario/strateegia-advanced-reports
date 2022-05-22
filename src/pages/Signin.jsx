@@ -47,34 +47,29 @@ export default function Signin() {
   }
 
   return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('gray.50', 'gray.800')}
-    >
+    <Flex minH={'100vh'} align={'top'} justify={'start'}>
       {/* <ColorModeSwitcher /> */}
       <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-        <Stack align={'center'}>
+        {/* <Stack align={'center'}>
           <Heading fontSize={'2xl'}>strateegia caixa morfológica</Heading>
           <Text fontSize={'lg'} color={'gray.600'}>
             entre com seu login de strateegia
           </Text>
-        </Stack>
+        </Stack> */}
         <Box
           rounded={'lg'}
           bg={useColorModeValue('white', 'gray.700')}
-          boxShadow={'lg'}
+          // boxShadow={'lg'}
           p={8}
         >
           <form onSubmit={handleSubmit} id="login-form">
             <Stack spacing={4}>
               <FormControl id="email">
-                <FormLabel>email</FormLabel>
+                <FormLabel>seu login em strateegia</FormLabel>
                 <Input type="email" name="email" onChange={handleChange} />
               </FormControl>
               <FormControl id="password">
-                <FormLabel>password</FormLabel>
+                <FormLabel>sua senha em strateegia</FormLabel>
                 <Input
                   type="password"
                   name="password"
@@ -83,14 +78,14 @@ export default function Signin() {
               </FormControl>
               <Stack spacing={10}>
                 <Button
-                  bg={'blue.400'}
+                  bg={'#3C69EB'}
                   color={'white'}
                   _hover={{
-                    bg: 'blue.500',
+                    bg: 'blue.400',
                   }}
                   type="submit"
                 >
-                  login
+                  entrar
                 </Button>
               </Stack>
             </Stack>

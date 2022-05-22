@@ -1,12 +1,5 @@
 import {
-  Box,
-  List,
-  ListItem,
-  ListIcon,
-  UnorderedList,
-  Switch,
-  Text,
-  Textarea,
+  Box, Heading, ListItem, Text, UnorderedList
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import * as api from 'strateegia-api';
@@ -101,6 +94,9 @@ export default function Main() {
 
   return (
     <Box padding={10}>
+      <Heading as="h3" size="md" mb={3}>
+        atas de reuniões
+      </Heading>
       <ProjectList handleSelectChange={handleSelectChange} />
       <MapList
         projectId={selectedProject}
@@ -129,8 +125,10 @@ function CheckpointReport({ checkpointAndComments }) {
             <UnorderedList margin={5}>
               {checkpointAndComment.comments.map(comment => (
                 <ListItem key={comment.id}>
-                  <Text>{comment.text}</Text>
-                  <Text>{comment.author.name}</Text>
+                  <Text>
+                    {comment.author.name}: {comment.text}
+                  </Text>
+                  {/* <Text>Criador: {comment.author.name}</Text> */}
                 </ListItem>
               ))}
             </UnorderedList>
