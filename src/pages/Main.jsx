@@ -140,12 +140,30 @@ function CheckpointReport({ checkpointAndComments }) {
       return {...checkpoint[index], authors: cmt.map(({author}) => author ), texts: cmt.map(({text}) => text )};
     });
 
+    // exportJSONData(checkpointCommentsCSV);
+
   return (
     <Box marginTop='8px'>
       {checkpointAndComments ? (
         <>
-        <CSVLink data={checkpointCommentsCSV} headers={headers} filename='strateegia_conversation_points_report-csv.csv' style={{display: 'flex', justifyContent: 'flex-end'}}>
+        <Box display='flex' justifyContent='flex-end'>
+          <CSVLink data={checkpointCommentsCSV} headers={headers} filename='strateegia_conversation_points_report-csv.csv' >
+            <Button
+              size='xs'
+              fontSize='14px'
+              fontWeight='400'
+              bg='#6c757d' 
+              color='#fff'
+              borderRadius='3px'
+              _hover={{bg: '#5C636A'}}
+              paddingBottom={'4px'}
+              
+              >
+                csv
+            </Button>
+          </CSVLink>
           <Button
+            m='2px'
             size='xs'
             fontSize='14px'
             fontWeight='400'
@@ -154,12 +172,11 @@ function CheckpointReport({ checkpointAndComments }) {
             borderRadius='3px'
             _hover={{bg: '#5C636A'}}
             paddingBottom={'4px'}
-            
-            >
-              csv
+            onClick={() => exportJSONData(checkpointCommentsCSV)}
+          >
+            json
           </Button>
-        </CSVLink>
-
+        </Box>
         {checkpointAndComments.map(checkpointAndComment => (
           <Box margin={10}>
             <strong>{checkpointAndComment.checkpoint.description}</strong>
@@ -213,4 +230,16 @@ function ConvergencePointList({ convergencePoints }) {
       )}
     </Box>
   );
+}
+
+export const exportJSONData = (data) => {
+  const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+    JSON.stringify(data)
+  )}`;
+
+  const link = document.createElement("a");
+  link.href = jsonString;
+  link.download = "strateegia_conversation_points_report-json.json";
+
+  link.click();
 }
