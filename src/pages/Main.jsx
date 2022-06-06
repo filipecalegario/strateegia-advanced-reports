@@ -36,64 +36,80 @@ export default function Main() {
   };
 
   const handleMapSelectChange = e => {
-    setSelectedMap(e.target.value);
+    e.target.value === '0' ? setSelectedMap(projectData.maps) : setSelectedMap(e.target.value);
   };
 
   useEffect(() => {
     setConvergencePoints([]);
   }, [selectedProject]);
+  
+
+
 
   useEffect(() => {
+    setCheckpointAndComments([])
+    async function readMapContents (id) {
+      const mapContents = await api.getMapById(accessToken, id);
+      const checkpoints = mapContents.points.filter(
+        point => point.point_type === 'CONVERSATION'
+      );
+
+      const requestsPopulatedCheckpoints = [];
+      const requestsCheckpointsComments = [];
+
+      checkpoints.forEach(checkpoint => {
+        requestsPopulatedCheckpoints.push(
+          api.getCheckpointById(accessToken, checkpoint.id)
+        );
+        requestsCheckpointsComments.push(
+          api.getAllCheckpointCommentsByCheckpointId(
+            accessToken,
+            checkpoint.id
+          )
+        );
+      });
+
+      const responsesPopulatedCheckpoints = await Promise.all(
+        requestsPopulatedCheckpoints
+      );
+      const responsesCheckpointsComments = await Promise.all(
+        requestsCheckpointsComments
+      );
+
+      const _checkpointAndComments = [];
+
+      responsesPopulatedCheckpoints.forEach(checkpoint => {
+        _checkpointAndComments.push({
+          checkpoint,
+          comments: [],
+        });
+      });
+
+      responsesCheckpointsComments.forEach(element => {
+        element.content.forEach(comment => {
+          const found = _checkpointAndComments.find(item => {
+            return item.checkpoint.id === comment.checkpoint_id;
+          });
+          found.comments.push(comment);
+        });
+      });
+      setCheckpointAndComments(checkP => [...checkP, ..._checkpointAndComments]);
+    }
+
+
     async function fetchData() {
       try {
         setIsLoading(true);
-        const mapContents = await api.getMapById(accessToken, selectedMap);
 
-        const checkpoints = mapContents.points.filter(
-          point => point.point_type === 'CONVERSATION'
-        );
+        if (typeof selectedMap === 'object') {
 
-        const requestsPopulatedCheckpoints = [];
-        const requestsCheckpointsComments = [];
+          selectedMap.map( async ({id}) => {
+            
+            await readMapContents(id);
+          })
 
-        checkpoints.forEach(checkpoint => {
-          requestsPopulatedCheckpoints.push(
-            api.getCheckpointById(accessToken, checkpoint.id)
-          );
-          requestsCheckpointsComments.push(
-            api.getAllCheckpointCommentsByCheckpointId(
-              accessToken,
-              checkpoint.id
-            )
-          );
-        });
-
-        const responsesPopulatedCheckpoints = await Promise.all(
-          requestsPopulatedCheckpoints
-        );
-        const responsesCheckpointsComments = await Promise.all(
-          requestsCheckpointsComments
-        );
-
-        const _checkpointAndComments = [];
-
-        responsesPopulatedCheckpoints.forEach(checkpoint => {
-          _checkpointAndComments.push({
-            checkpoint,
-            comments: [],
-          });
-        });
-
-        responsesCheckpointsComments.forEach(element => {
-          element.content.forEach(comment => {
-            const found = _checkpointAndComments.find(item => {
-              return item.checkpoint.id === comment.checkpoint_id;
-            });
-            found.comments.push(comment);
-          });
-        });
-        console.log(_checkpointAndComments);
-        setCheckpointAndComments([..._checkpointAndComments]);
+        } else await readMapContents(selectedMap);
+        
       } catch (error) {
         console.log(error);
       }
@@ -113,7 +129,7 @@ export default function Main() {
         <Link 
           pointerEvents={selectedProject ? '' : 'none'}
           _disabled={selectedProject ? false : true}
-          href={`https://app.strateegia.digital/journey/${selectedProject}/map/${projectData?.maps[0].id}`}
+          href={selectedProject ? `https://app.strateegia.digital/journey/${selectedProject}/map/${projectData?.maps[0].id}` : '' }
           target='_blank'
           bg='#E9ECEF'
           borderRadius={' 0 6px 6px 0 '}

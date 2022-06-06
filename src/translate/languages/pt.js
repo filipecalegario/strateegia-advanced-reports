@@ -15,6 +15,9 @@ const messages = {
             checkpointReport: {
                 place: 'local',
                 date: 'data',
+            },
+            mapList: {
+                list: 'todos'
             }
         }
     }
