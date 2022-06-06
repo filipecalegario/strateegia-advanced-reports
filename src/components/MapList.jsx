@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Select } from '@chakra-ui/react';
 import * as api from 'strateegia-api';
+import { i18n } from '../translate/i18n';
 
 export default function MapList({ projectId, handleSelectChange }) {
   const [mapList, setMapList] = useState(null);
@@ -21,7 +22,7 @@ export default function MapList({ projectId, handleSelectChange }) {
   }, [projectId]);
 
   return projectId ? (
-    <Select placeholder="escolha o mapa" onChange={handleSelectChange}>
+    <Select placeholder={i18n.t('main.placeholderMap')} onChange={handleSelectChange}>
       {mapList
         ? mapList.map(mapItem => {
             return (
