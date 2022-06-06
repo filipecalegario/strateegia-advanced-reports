@@ -4,31 +4,6 @@ import { ButtonExp } from "./ButtonToExport";
 
 export function ExportsButtons({ project, data, headers, saveFile }) {
   
-  // const checkpoint = checkpointAndComments?.map(({ checkpoint }) => {
-  //   return {
-  //     description: checkpoint.description,
-  //     meeting_place: checkpoint.meeting_place,
-  //     opening_date: checkpoint.opening_date,
-  //   };
-  // });
-
-  // const comments = checkpointAndComments?.map(({ comments }) => {
-  //   return comments.map(({ author, text }) => {
-  //     return {
-  //       author: author.name,
-  //       text: text,
-  //     };
-  //   });
-  // });
-
-  // const checkpointCommentsCSV = comments?.map((cmt, index) => {
-  //   return {
-  //     ...checkpoint[index],
-  //     authors: cmt.map(({ author }) => author),
-  //     texts: cmt.map(({ text }) => text),
-  //   };
-  // });
-
   return (
     <Box display="flex" justifyContent="flex-end" alignItems='flex-end' m='4px'>
       <ButtonExp click={saveFile} project={project} text='docx'/>

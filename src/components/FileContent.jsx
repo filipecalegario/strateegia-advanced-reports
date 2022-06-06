@@ -44,7 +44,7 @@ export const generateDocument = (checkpointAndComments) => {
                 mimeType:
                     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             }); //Output the document using Data-URI
-            saveAs(out, "output.docx");
+            saveAs(out, "strateegia_convergence_points_report-docx.docx");
         }
     );
 
