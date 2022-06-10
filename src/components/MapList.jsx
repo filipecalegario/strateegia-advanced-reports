@@ -5,8 +5,8 @@ import { i18n } from '../translate/i18n';
 
 export default function MapList({ projectId, handleSelectChange }) {
   const [mapList, setMapList] = useState(null);
-
   useEffect(() => {
+    setMapList(null);
     async function fetchMapList() {
       try {
         const accessToken = localStorage.getItem('accessToken');
