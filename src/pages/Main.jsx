@@ -40,7 +40,7 @@ export default function Main() {
   };
 
   useEffect(() => {
-    setConvergencePoints([]);
+    setCheckpointAndComments(null);
   }, [selectedProject]);
   
 
