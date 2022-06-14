@@ -16,7 +16,6 @@ export default function Main() {
   const [isLoading, setIsLoading] = useState(false);
   const [accessToken, setAccessToken] = useState('');
   const [checkpointAndComments, setCheckpointAndComments] = useState(null);
-  const [checkpointAndComments1, setCheckpointAndComments1] = useState(null);
   const [projectData, setProjectData] = useState(null);
 
 
@@ -35,8 +34,9 @@ export default function Main() {
     fetchMapList();
   };
 
-  const handleMapSelectChange = e => {
-    e.target.value === '0' ? setSelectedMap(projectData.maps) : setSelectedMap(e.target.value);
+  const handleMapSelectChange = (value, oi) => {
+    const values = value.map(val => val.value);
+    values == 0 ? setSelectedMap(projectData.maps) : setSelectedMap(value)
   };
 
   useEffect(() => {
@@ -45,12 +45,7 @@ export default function Main() {
   
 
   useEffect(() => {
-    console.log("🚀 ~ file: Main.jsx ~ line 50 ~ Main ~ checkpointAndComments1", checkpointAndComments1)
-  }, [checkpointAndComments1])
-
-  useEffect(() => {
     setCheckpointAndComments([])
-    setCheckpointAndComments1([])
     async function readMapContents (id) {
       const mapContents = await api.getMapById(accessToken, id);
       const checkpoints = mapContents.points.filter(
@@ -97,20 +92,12 @@ export default function Main() {
           found.comments.push(comment);
         });
       });
-      // _checkpointCommentsAndMapTitle.push({
-      //   mapTitle: mapContents.title,
-      //   checkpointAndComments: _checkpointAndComments,
-      // })
-      // console.log("🚀 ~ file: Main.jsx ~ line 105 ~ readMapContents ~ _checkpointAndComments", _checkpointAndComments)
-      // setCheckpointAndComments(checkP => [...checkP, ..._checkpointAndComments]);
-      
       
       const _checkpointCommentsAndMapTitle = {
         mapTitle: mapContents.title,
         mapId: mapContents.id,
         checkpointAndCommentsArr: _checkpointAndComments.map(cac => cac)
       };
-      // console.log("🚀 ~ file: Main.jsx ~ line 112 ~ readMapContents ~ _checkpointCommentsAndMapTitle",_checkpointCommentsAndMapTitle);
       setCheckpointAndComments(checkPMT => [...checkPMT.flat(), _checkpointCommentsAndMapTitle]);
     }
 
@@ -121,9 +108,9 @@ export default function Main() {
 
         if (typeof selectedMap === 'object') {
 
-          selectedMap.map( async ({id}) => {
+          selectedMap.map( async ({value}) => {
             
-            await readMapContents(id);
+            await readMapContents(value);
           })
 
         } else await readMapContents(selectedMap);
@@ -142,7 +129,7 @@ export default function Main() {
 
   return (
     <Box padding={10}>
-      <Box display='flex' >
+      <Box display='flex' mb={3}>
         <ProjectList handleSelectChange={handleSelectChange} />
         <Link 
           pointerEvents={selectedProject ? '' : 'none'}

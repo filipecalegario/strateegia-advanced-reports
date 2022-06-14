@@ -10,7 +10,6 @@ export function CheckpointReport({ checkpointAndComments }) {
   React.useEffect(() => {
     async function fetchData () {
       const checkpointCommentsCSV = await getCsvData(checkpointAndComments);
-      console.log("🚀 ~ file: CheckpointReport.jsx ~ line 55 ~ React.useEffect ~ checkpointCommentsCSV", checkpointCommentsCSV)
       setCsvData(checkpointCommentsCSV)
     }
     fetchData();
