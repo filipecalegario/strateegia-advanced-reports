@@ -20,6 +20,7 @@ export default function Main() {
 
 
   const handleSelectChange = (e) => {
+   
     setSelectedProject(e.target.value);
     setIsLoading(true);
     async function fetchMapList() {
@@ -34,13 +35,13 @@ export default function Main() {
     fetchMapList();
   };
 
-  const handleMapSelectChange = (value, oi) => {
-    const values = value.map(val => val.value);
-    values == 0 ? setSelectedMap(projectData.maps) : setSelectedMap(value)
+  const handleMapSelectChange = (value) => {
+    setSelectedMap(value)
   };
 
   useEffect(() => {
     setCheckpointAndComments(null);
+    setSelectedMap('');
   }, [selectedProject]);
   
 
