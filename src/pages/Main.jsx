@@ -14,9 +14,9 @@ export default function Main() {
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedMap, setSelectedMap] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [convergencePoints, setConvergencePoints] = useState([]);
   const [accessToken, setAccessToken] = useState('');
   const [checkpointAndComments, setCheckpointAndComments] = useState(null);
+  const [checkpointAndComments1, setCheckpointAndComments1] = useState(null);
   const [projectData, setProjectData] = useState(null);
 
 
@@ -44,10 +44,13 @@ export default function Main() {
   }, [selectedProject]);
   
 
-
+  useEffect(() => {
+    console.log("🚀 ~ file: Main.jsx ~ line 50 ~ Main ~ checkpointAndComments1", checkpointAndComments1)
+  }, [checkpointAndComments1])
 
   useEffect(() => {
     setCheckpointAndComments([])
+    setCheckpointAndComments1([])
     async function readMapContents (id) {
       const mapContents = await api.getMapById(accessToken, id);
       const checkpoints = mapContents.points.filter(
@@ -77,6 +80,7 @@ export default function Main() {
       );
 
       const _checkpointAndComments = [];
+      // const _checkpointCommentsAndMapTitle = [];
 
       responsesPopulatedCheckpoints.forEach(checkpoint => {
         _checkpointAndComments.push({
@@ -93,7 +97,21 @@ export default function Main() {
           found.comments.push(comment);
         });
       });
-      setCheckpointAndComments(checkP => [...checkP, ..._checkpointAndComments]);
+      // _checkpointCommentsAndMapTitle.push({
+      //   mapTitle: mapContents.title,
+      //   checkpointAndComments: _checkpointAndComments,
+      // })
+      // console.log("🚀 ~ file: Main.jsx ~ line 105 ~ readMapContents ~ _checkpointAndComments", _checkpointAndComments)
+      // setCheckpointAndComments(checkP => [...checkP, ..._checkpointAndComments]);
+      
+      
+      const _checkpointCommentsAndMapTitle = {
+        mapTitle: mapContents.title,
+        mapId: mapContents.id,
+        checkpointAndCommentsArr: _checkpointAndComments.map(cac => cac)
+      };
+      // console.log("🚀 ~ file: Main.jsx ~ line 112 ~ readMapContents ~ _checkpointCommentsAndMapTitle",_checkpointCommentsAndMapTitle);
+      setCheckpointAndComments(checkPMT => [...checkPMT.flat(), _checkpointCommentsAndMapTitle]);
     }
 
 
