@@ -14,13 +14,13 @@ export default function Main() {
   const [selectedProject, setSelectedProject] = useState('');
   const [selectedMap, setSelectedMap] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [convergencePoints, setConvergencePoints] = useState([]);
   const [accessToken, setAccessToken] = useState('');
   const [checkpointAndComments, setCheckpointAndComments] = useState(null);
   const [projectData, setProjectData] = useState(null);
 
 
   const handleSelectChange = (e) => {
+   
     setSelectedProject(e.target.value);
     setIsLoading(true);
     async function fetchMapList() {
@@ -35,16 +35,15 @@ export default function Main() {
     fetchMapList();
   };
 
-  const handleMapSelectChange = e => {
-    e.target.value === '0' ? setSelectedMap(projectData.maps) : setSelectedMap(e.target.value);
+  const handleMapSelectChange = (value) => {
+    setSelectedMap(value)
   };
 
   useEffect(() => {
     setCheckpointAndComments(null);
+    setSelectedMap('');
   }, [selectedProject]);
   
-
-
 
   useEffect(() => {
     setCheckpointAndComments([])
@@ -77,6 +76,7 @@ export default function Main() {
       );
 
       const _checkpointAndComments = [];
+      // const _checkpointCommentsAndMapTitle = [];
 
       responsesPopulatedCheckpoints.forEach(checkpoint => {
         _checkpointAndComments.push({
@@ -93,7 +93,13 @@ export default function Main() {
           found.comments.push(comment);
         });
       });
-      setCheckpointAndComments(checkP => [...checkP, ..._checkpointAndComments]);
+      
+      const _checkpointCommentsAndMapTitle = {
+        mapTitle: mapContents.title,
+        mapId: mapContents.id,
+        checkpointAndCommentsArr: _checkpointAndComments.map(cac => cac)
+      };
+      setCheckpointAndComments(checkPMT => [...checkPMT.flat(), _checkpointCommentsAndMapTitle]);
     }
 
 
@@ -103,9 +109,9 @@ export default function Main() {
 
         if (typeof selectedMap === 'object') {
 
-          selectedMap.map( async ({id}) => {
+          selectedMap.map( async ({value}) => {
             
-            await readMapContents(id);
+            await readMapContents(value);
           })
 
         } else await readMapContents(selectedMap);
@@ -124,7 +130,7 @@ export default function Main() {
 
   return (
     <Box padding={10}>
-      <Box display='flex' >
+      <Box display='flex' mb={3}>
         <ProjectList handleSelectChange={handleSelectChange} />
         <Link 
           pointerEvents={selectedProject ? '' : 'none'}

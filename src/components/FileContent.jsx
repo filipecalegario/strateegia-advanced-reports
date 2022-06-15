@@ -21,22 +21,28 @@ export const generateDocument = (checkpointAndComments) => {
                 paragraphLoop: true,
                 linebreaks: true,
             });
-
-            const docData = checkpointAndComments.map(({checkpoint, comments}) => {
-                return { 
-                    
-                    'heading': checkpoint.description,
-                    'meeting_at': checkpoint.meeting_place,
-                    'date': checkpoint.opening_date,
-    
-                    'user_name': comments.map(({author}) => author?.name + ' :'),
-                    'comment': comments.map(({text}) => text)
-                    
+            const docData = []
+            checkpointAndComments.map(({mapTitle, checkpointAndCommentsArr}) => {
+                const data = {
+                    map_title: mapTitle,
+                    meetings_details: checkpointAndCommentsArr.map(({checkpoint, comments}) => {
+                        return {
+                            heading: checkpoint.description,
+                            meeting_at: checkpoint.meeting_place,
+                            date: checkpoint.opening_date,
+                            'user_name': comments.map(({author}) => author?.name + ' :'),
+                            'comment': comments.map(({text}) => text),
+                        }
+                    })
                 }
-            });
+                docData.push(data)
+                
+            })
+            console.log("🚀 ~ file: FileContent.jsx ~ line 40 ~ docData ~ docData", docData.flat())
+            // });
 
             doc.render({
-                'meetings': docData
+                'meetings': docData.flat()
             });
 
             const out = doc.getZip().generate({
@@ -50,9 +56,11 @@ export const generateDocument = (checkpointAndComments) => {
 
 }
 
-
-
 export const headers = [
+    {
+        label: "Map title",
+        key: "map_title"
+    },
     {
         label: "Conv. Point Description",
         key: "description",
@@ -75,4 +83,41 @@ export const headers = [
     },
 ];
 
+export const getCsvData = async (checkpointAndComments) => {
 
+    const checkpoints = await Promise.all(
+        checkpointAndComments?.map(({ mapTitle, checkpointAndCommentsArr }) =>
+        {
+        return checkpointAndCommentsArr?.map(({ checkpoint }) => {
+            return {
+                map_title: mapTitle,
+                description: checkpoint.description,
+                meeting_place: checkpoint.meeting_place,
+                opening_date: checkpoint.opening_date,
+            }      
+            });
+        })
+    ).then(data => {
+        return data.flat()
+    });
+
+    const comments = await Promise.all(
+        checkpointAndComments?.map(({checkpointAndCommentsArr}) => {
+        return checkpointAndCommentsArr?.map(({ comments }) => {
+            return comments?.map(({author, text}) => {
+            return {
+                author: author.name, text: text
+            }
+            })
+        })
+        })      
+    ).then(data => {
+        return data.flat()
+    });
+
+    const checkpointCommentsCSV = comments?.map( (cmt, index) => {
+        return {...checkpoints[index], authors: cmt?.map(({author}) => author), texts: cmt?.map(({text}) => text )};
+    });
+    
+    return checkpointCommentsCSV;
+};
